@@ -29,6 +29,7 @@ CHANNEL_ID = 991129043011383387
 
 class Services(commands.Cog):
     """
+    A service checker from the UnB website.
     """
 
     def __init__(self, bot: UnBot) -> None:

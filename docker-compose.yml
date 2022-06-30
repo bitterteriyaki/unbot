@@ -2,5 +2,3 @@ services:
   bot:
     build: .
     command: python launcher.py
-    env_file:
-      - .env

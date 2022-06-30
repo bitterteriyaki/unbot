@@ -65,8 +65,6 @@ class Services(commands.Cog):
         self.last_result = is_active
         await self.send_service_status()
 
-        self.last_time = discord.utils.utcnow()
-
     @check_services.before_loop
     async def before_check_services(self) -> None:
         await self.bot.wait_until_ready()
@@ -84,6 +82,8 @@ class Services(commands.Cog):
 
         embed = discord.Embed(title=title, description=message, color=0x008940)
         await self.channel.send(embed=embed)
+
+        self.last_time = now
 
 
 async def setup(bot: UnBot):

@@ -17,6 +17,7 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           script: |
             cd unbot
+            git pull
             docker compose down
             docker compose build
             docker compose up -f docker-compose.yml -f docker-compose.prod.yml -d

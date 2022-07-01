@@ -59,6 +59,10 @@ class Services(commands.Cog):
         except asyncio.TimeoutError:
             is_active = False
 
+        if self.last_result is None:
+            self.last_result = is_active
+            return
+
         if is_active is self.last_result:
             return
 
@@ -70,9 +74,6 @@ class Services(commands.Cog):
         await self.bot.wait_until_ready()
 
     async def send_service_status(self) -> None:
-        if self.last_result is None:
-            return
-
         if self.last_result:
             title = "🟢 O Aprender3 voltou ao ar!"
         else:

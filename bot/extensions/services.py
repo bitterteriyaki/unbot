@@ -70,6 +70,9 @@ class Services(commands.Cog):
         await self.bot.wait_until_ready()
 
     async def send_service_status(self) -> None:
+        if self.last_result is None:
+            return
+
         if self.last_result:
             title = "🟢 O Aprender3 voltou ao ar!"
         else:

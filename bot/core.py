@@ -15,12 +15,19 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
+import os
+
 import aiohttp
 import discord
 from discord.ext import commands
 
 
 __all__ = ("UnBot",)
+
+
+# Force some environment variables.
+os.environ["JISHAKU_NO_UNDERSCORE"] = "true"
+os.environ["JISHAKU_NO_DM_TRACEBACK"] = "true"
 
 
 GUILD_ID = 988618358029168690
@@ -57,6 +64,7 @@ class UnBot(commands.Bot):
         self.session = aiohttp.ClientSession(timeout=timeout)
 
         await self.load_extension("bot.extensions.services")
+        await self.load_extension("jishaku")
 
     async def close(self) -> None:
         await self.session.close()

@@ -19,5 +19,5 @@ jobs:
           script: |
             cd unbot
             git pull
-            docker compose -f docker-compose.yml -f docker-compose.prod.yml down
+            TOKEN="${{ secrets.TOKEN }} docker compose -f docker-compose.yml -f docker-compose.prod.yml down
             TOKEN="${{ secrets.TOKEN }}" docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build

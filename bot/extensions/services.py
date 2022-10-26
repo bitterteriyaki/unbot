@@ -27,6 +27,20 @@ from bot.core import UnBot
 CHANNEL_ID = 991129043011383387
 
 
+class Service:
+    """
+    Represents a service of UnB.
+    """
+    
+    __slots__ = ("url", "fancy_name", "last_result", "last_time")
+
+    def __init__(self, url: str, fancy_name: str) -> None:
+        self.url = url
+        self.fancy_name = fancy_name
+        self.last_result = None
+        self.last_time = discord.utils.utcnow()
+        
+
 class Services(commands.Cog):
     """
     A service checker from the UnB website.
@@ -34,12 +48,29 @@ class Services(commands.Cog):
 
     def __init__(self, bot: UnBot) -> None:
         self.bot = bot
-        self.service_url = "https://aprender3.unb.br"
-
-        self.last_result = None
-        self.last_time = discord.utils.utcnow()
+        self.services = [
+            Service("https://aprender3.unb.br", "Aprender3"),
+            Service("https://sigaa.unb.br/sigaa", "SIGAA"),
+        ]
 
         self.check_services.start()
+
+    async def check_service(self, service: Service) -> None:
+        try:
+            async with self.bot.session.get(service.url):
+                is_active = True
+        except asyncio.TimeoutError:
+            is_active = False
+
+        if service.last_result is None:
+            service.last_result = is_active
+            return
+
+        if is_active is service.last_result:
+            return
+
+        service.last_result = is_active
+        await self.send_service_status(service)        
 
     @discord.utils.cached_property
     def channel(self) -> discord.TextChannel:
@@ -53,41 +84,28 @@ class Services(commands.Cog):
 
     @tasks.loop(minutes=5.0)
     async def check_services(self) -> None:
-        try:
-            async with self.bot.session.get(self.service_url):
-                is_active = True
-        except asyncio.TimeoutError:
-            is_active = False
-
-        if self.last_result is None:
-            self.last_result = is_active
-            return
-
-        if is_active is self.last_result:
-            return
-
-        self.last_result = is_active
-        await self.send_service_status()
+        for service in self.services:
+            await self.check_service(service)
 
     @check_services.before_loop
     async def before_check_services(self) -> None:
         await self.bot.wait_until_ready()
 
-    async def send_service_status(self) -> None:
-        if self.last_result:
-            title = "🟢 O Aprender3 voltou ao ar!"
+    async def send_service_status(self, service: Service) -> None:
+        if service.last_result:
+            title = f"🟢 O {service.fancy_name} voltou ao ar!"
         else:
-            title = "🔴 O Aprender3 caiu!"
+            title = f"🔴 O {service.fancy_name} caiu!"
 
         now = discord.utils.utcnow()
 
-        delta = humanize.naturaldelta(now - self.last_time)
+        delta = humanize.naturaldelta(now - service.last_time)
         message = f"Depois de **{delta}**!"
 
         embed = discord.Embed(title=title, description=message, color=0x008940)
         await self.channel.send(embed=embed)
 
-        self.last_time = now
+        service.last_time = now
 
 
 async def setup(bot: UnBot):

@@ -29,7 +29,8 @@ CHANNEL_ID = 991129043011383387
 
 class Service:
     """
-    Represents a service of UnB.
+    Represents a service of UnB. A service of UnB is a website of the
+    system.
     """
     
     __slots__ = ("url", "fancy_name", "last_result", "last_time")
